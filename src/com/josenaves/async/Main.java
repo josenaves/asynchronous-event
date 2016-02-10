@@ -57,10 +57,25 @@ public class Main {
 
         );
 
-        Thread.sleep(19000);
-        MainThread.terminate();
+        mainThread.postEvent(
+                new Event("Event 4", 1000),
+                new EventListener() {
+                    @Override
+                    public void onSuccess(Event event) {
+                        System.out.println("Event " + event.getOwner() + " successfully processed.");
+                    }
 
-        System.out.println("Finished");
+                    @Override
+                    public void onFailure(Event event) {
+                        System.out.println("An error has occurred processing event " + event.getOwner() + ".");
+                    }
+                }
+
+        );
+
+        System.out.println("All events fired and processing...");
+
+        MainThread.terminate();
     }
 
 }

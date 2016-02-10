@@ -1,6 +1,5 @@
 package com.josenaves.async;
 
-import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -43,32 +42,19 @@ public final class MainThread implements Runnable, EventProcessor {
 
     @Override
     public void run() {
-        try {
-            while (keepRunning) {
-                if (!queue.isEmpty()) {
-                    // handle the event from the queue
-                    EventHolder eventHolder = queue.remove();
-                    Event event = eventHolder.event;
-                    EventListener listener = eventHolder.listener;
+        while (keepRunning || !queue.isEmpty()) {
+            if (!queue.isEmpty()) {
+                // handle the event from the queue
+                EventHolder eventHolder = queue.remove();
+                Event event = eventHolder.event;
+                EventListener listener = eventHolder.listener;
 
-                    // do some arbitrary logic
-                    System.out.println("Processing event " + eventHolder.event.getOwner() + "...");
-                    Thread.sleep(eventHolder.event.getTimeout());
+                event.setListener(listener);
 
-                    if (new Random(System.currentTimeMillis()).nextBoolean()) {
-                        // success
-                        listener.onSuccess(event);
-                    }
-                    else {
-                        // failure
-                        listener.onFailure(event);
-                    }
-
-                }
+                new Thread(event).start();
             }
-        } catch (InterruptedException e) {
-            System.err.println("An error has occurred.");
         }
+        System.out.println("Event loop finished.");
     }
 
     public static synchronized void terminate() {
